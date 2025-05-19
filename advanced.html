@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Advanced Aptitude Quiz - LearnSphere</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      background: #0f2027;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      padding: 1rem;
+    }
+    .quiz-container {
+      width: 100%;
+      max-width: 600px;
+      background: #203a43;
+      padding: 2rem;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+    #status-bar {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 1rem 0;
+    }
+    li {
+      background: #2c5364;
+      margin: 0.5rem 0;
+      padding: 0.8rem;
+      border-radius: 10px;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.3s ease;
+    }
+    li:hover {
+      background: #44a08d;
+    }
+    .correct {
+      background-color: #4CAF50 !important; /* green */
+      color: #fff;
+      font-weight: 700;
+    }
+    .wrong {
+      background-color: #f44336 !important; /* red */
+      color: #fff;
+      font-weight: 700;
+    }
+    #result {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+    .hidden {
+      display: none;
+    }
+    button {
+      margin-top: 1.5rem;
+      padding: 0.6rem 1.4rem;
+      border: none;
+      border-radius: 10px;
+      background: #44a08d;
+      color: white;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover:not(.hidden) {
+      background: #3a8a7a;
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 480px) {
+      body {
+        padding: 0.5rem;
+      }
+      .quiz-container {
+        padding: 1.2rem;
+        max-width: 100%;
+      }
+      #status-bar {
+        flex-direction: column;
+        gap: 0.4rem;
+        font-size: 0.9rem;
+      }
+      button {
+        width: 100%;
+        font-size: 1.1rem;
+      }
+      li {
+        font-size: 0.95rem;
+        padding: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-container">
+    <h2>🚀 Advanced Aptitude Quiz</h2>
+    <div id="status-bar">
+      <p>Points: <span id="points">0</span></p>
+      <p>Lives: <span id="lives">3</span></p>
+      <p>⏱️ Timer: <span id="timer">30</span>s</p>
+    </div>
+    <div id="question-container">
+      <h3 id="question">Loading question...</h3>
+      <ul id="options"></ul>
+    </div>
+    <div id="result" class="hidden"></div>
+    <button id="next-btn" class="hidden">Next</button>
+  </div>
+
+  <script>
+    const questions = [
+      { question: "If log(x) + log(2) = log(10), what is x?", options: ["5", "10", "2", "20"], answer: "5" },
+      { question: "Find the missing term: 3, 9, 27, ?, 243", options: ["54", "81", "90", "108"], answer: "81" },
+      { question: "A train 360m long runs in 36 sec. Speed?", options: ["10 m/s", "5 m/s", "15 m/s", "20 m/s"], answer: "10 m/s" },
+      { question: "What is 15% of 200?", options: ["25", "30", "35", "40"], answer: "30" },
+      { question: "If 2x + 3 = 11, what is x?", options: ["4", "3", "5", "6"], answer: "4" },
+      { question: "The square root of 144 is?", options: ["10", "11", "12", "13"], answer: "12" },
+      { question: "What is the next prime number after 29?", options: ["31", "33", "37", "41"], answer: "31" },
+      { question: "If the ratio of two numbers is 3:5 and their sum is 64, what is the smaller number?", options: ["24", "30", "36", "40"], answer: "24" },
+      { question: "What is the area of a circle with radius 7?", options: ["154", "144", "164", "174"], answer: "154" },
+      { question: "Solve: 5! (factorial of 5) equals?", options: ["120", "60", "20", "24"], answer: "120" }
+    ];
+
+    let index = 0, score = 0, lives = 3, timer, timeLeft = 30;
+    const q = document.getElementById("question");
+    const o = document.getElementById("options");
+    const pts = document.getElementById("points");
+    const lvs = document.getElementById("lives");
+    const t = document.getElementById("timer");
+    const r = document.getElementById("result");
+    const n = document.getElementById("next-btn");
+
+    function show() {
+      clearInterval(timer);
+      timeLeft = 30;
+      t.textContent = timeLeft;
+      o.innerHTML = "";
+      r.classList.add("hidden");
+      n.classList.add("hidden");
+
+      if (index >= questions.length) {
+        end();
+        return;
+      }
+
+      const curr = questions[index];
+      q.textContent = curr.question;
+      curr.options.forEach(opt => {
+        const li = document.createElement("li");
+        li.textContent = opt;
+        li.onclick = () => check(opt);
+        o.appendChild(li);
+      });
+
+      timer = setInterval(() => {
+        timeLeft--;
+        t.textContent = timeLeft;
+        if (timeLeft === 0) {
+          clearInterval(timer);
+          wrong();
+        }
+      }, 1000);
+    }
+
+    function check(selected) {
+      clearInterval(timer);
+      const correct = questions[index].answer;
+      document.querySelectorAll("li").forEach(li => {
+        if (li.textContent === correct) li.classList.add("correct");
+        if (li.textContent === selected && selected !== correct) li.classList.add("wrong");
+        li.onclick = null;
+      });
+      if (selected === correct) {
+        score += 10;
+        pts.textContent = score;
+        r.textContent = "✅ Correct!";
+      } else {
+        wrong();
+        return;
+      }
+      r.classList.remove("hidden");
+      n.classList.remove("hidden");
+    }
+
+    function wrong() {
+      lives--;
+      lvs.textContent = lives;
+      r.textContent = "❌ Wrong!";
+      r.classList.remove("hidden");
+      n.classList.remove("hidden");
+      if (lives === 0) {
+        end();
+      }
+    }
+
+    function end() {
+      q.textContent = "Quiz Finished!";
+      o.innerHTML = "";
+      r.textContent = `Final Score: ${score}`;
+      n.style.display = "none";
+    }
+
+    n.onclick = () => {
+      index++;
+      show();
+    };
+
+    show();
+  </script>
+</body>
+</html>

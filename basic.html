@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Basic Aptitude Quiz - LearnSphere</title>
+  <style>
+    body {
+      background: #121212;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .quiz-container {
+      width: 100%;
+      max-width: 600px;
+      background: #203a43;
+      padding: 2rem;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+
+    #status-bar {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 1rem;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 1rem 0;
+    }
+
+    li {
+      background: #333;
+      margin: 0.5rem 0;
+      padding: 0.8rem;
+      border-radius: 10px;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.3s ease;
+    }
+
+    li:hover {
+      background: #555;
+    }
+
+    .correct {
+      background-color: green;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .wrong {
+      background-color: red;
+       color: #fff;
+      font-weight: 700;
+    }
+      #result {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 0.5rem;
+      
+      }
+
+      .quiz-container {
+        width: 100%;
+        padding: 1.2rem;
+      }
+
+      #status-bar {
+        flex-direction: column;
+        gap: 0.4rem;
+        font-size: 0.9rem;
+      }
+      button {
+        width: 100%;
+        font-size: 1.1rem;
+      }
+      li {
+        font-size: 0.95rem;
+        padding: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-container">
+    <h2>🧠 Basic Aptitude Quiz</h2>
+    <div id="status-bar">
+      <p>Points: <span id="points">0</span></p>
+      <p>Lives: <span id="lives">3</span></p>
+      <p>⏱️ Timer: <span id="timer">30</span>s</p>
+    </div>
+    <div id="question-container">
+      <h3 id="question">Loading question...</h3>
+      <ul id="options"></ul>
+    </div>
+    <div id="result" class="hidden"></div>
+    <button id="next-btn" class="hidden">Next</button>
+  </div>
+
+  <script>
+    const questions = [
+      { question: "What is 7 + 6?", options: ["12", "13", "14", "15"], answer: "13" },
+      { question: "What is the square root of 49?", options: ["5", "6", "7", "8"], answer: "7" },
+      { question: "Which is the odd one out?", options: ["Apple", "Banana", "Carrot", "Grapes"], answer: "Carrot" },
+      { question: "What is 15 * 3?", options: ["45", "30", "35", "40"], answer: "45" },
+      { question: "Which number is prime?", options: ["4", "6", "9", "11"], answer: "11" },
+      { question: "What comes next: 2, 4, 8, 16, ?", options: ["20", "24", "32", "30"], answer: "32" },
+      { question: "Solve: 100 ÷ 4", options: ["20", "25", "30", "40"], answer: "25" },
+      { question: "If x = 2, what is 3x + 5?", options: ["10", "11", "12", "13"], answer: "11" },
+      { question: "What is the value of π (approximately)?", options: ["2.14", "3.14", "4.13", "3.41"], answer: "3.14" },
+      { question: "How many sides does a hexagon have?", options: ["5", "6", "7", "8"], answer: "6" }
+    ];
+
+    let currentIndex = 0;
+    let score = 0;
+    let lives = 3;
+    let timer;
+    let timeLeft = 30;
+
+    const questionEl = document.getElementById("question");
+    const optionsEl = document.getElementById("options");
+    const pointsEl = document.getElementById("points");
+    const livesEl = document.getElementById("lives");
+    const timerEl = document.getElementById("timer");
+    const resultEl = document.getElementById("result");
+    const nextBtn = document.getElementById("next-btn");
+
+    function showQuestion() {
+      resetState();
+      const q = questions[currentIndex];
+      questionEl.textContent = q.question;
+      q.options.forEach(opt => {
+        const li = document.createElement("li");
+        li.textContent = opt;
+        li.onclick = () => checkAnswer(opt);
+        optionsEl.appendChild(li);
+      });
+      startTimer();
+    }
+
+    function resetState() {
+      clearInterval(timer);
+      timeLeft = 30;
+      timerEl.textContent = timeLeft;
+      optionsEl.innerHTML = "";
+      resultEl.classList.add("hidden");
+      nextBtn.classList.add("hidden");
+    }
+
+    function startTimer() {
+      timer = setInterval(() => {
+        timeLeft--;
+        timerEl.textContent = timeLeft;
+        if (timeLeft === 0) {
+          clearInterval(timer);
+          handleWrong();
+        }
+      }, 1000);
+    }
+
+    function checkAnswer(selected) {
+      clearInterval(timer);
+      const correct = questions[currentIndex].answer;
+      const options = document.querySelectorAll("li");
+      options.forEach(opt => {
+        if (opt.textContent === correct) {
+          opt.classList.add("correct");
+        }
+        if (opt.textContent === selected && selected !== correct) {
+          opt.classList.add("wrong");
+        }
+        opt.onclick = null;
+      });
+
+      if (selected === correct) {
+        score += 10;
+        pointsEl.textContent = score;
+        resultEl.textContent = "✅ Correct!";
+      } else {
+        handleWrong();
+      }
+
+      resultEl.classList.remove("hidden");
+      nextBtn.classList.remove("hidden");
+    }
+
+    function handleWrong() {
+      lives--;
+      livesEl.textContent = lives;
+      resultEl.textContent = "❌ Wrong!";
+      resultEl.classList.remove("hidden");
+      nextBtn.classList.remove("hidden");
+
+      if (lives === 0) {
+        endQuiz();
+      }
+    }
+
+    function endQuiz() {
+      questionEl.textContent = "🎉 Quiz Completed!";
+      optionsEl.innerHTML = "";
+      resultEl.textContent = `Your Final Score: ${score} / ${questions.length * 10}`;
+      resultEl.classList.remove("hidden");
+      nextBtn.style.display = "none";
+    }
+
+    nextBtn.onclick = () => {
+      currentIndex++;
+      if (currentIndex < questions.length) {
+        showQuestion();
+      } else {
+        endQuiz();
+      }
+    };
+
+    showQuestion();
+  </script>
+</body>
+</html>

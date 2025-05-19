@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Motivational Quote</title>
+  <style>
+    body{
+        background: #1a1a2e;
+    }
+   
+  #quote-box {
+    background: #203a43;
+    color: #fff;
+    padding: 1rem;
+    margin: 1rem auto;
+    max-width: 500px;
+    border-radius: 10px;
+    text-align: center;
+    font-style: italic;
+    font-size: 1.1rem;
+  }
+  #author {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: #ccc;
+  }
+
+  @media (max-width: 600px) {
+    #quote-box {
+      font-size: 1rem;
+      padding: 0.8rem;
+      margin: 1rem 0.5rem;
+    }
+    #author {
+      font-size: 0.8rem;
+    }
+  }
+</style>
+
+</head>
+<body>
+
+ <div id="quote-box">
+  <p id="quote"></p>
+  <small id="author"></small>
+</div>
+
+  <script>
+ async function fetchQuote() {
+    try {
+      const res = await fetch("https://api.quotable.io/random");
+      const data = await res.json();
+      document.getElementById("quote").textContent = `"${data.content}"`;
+      document.getElementById("author").textContent = `— ${data.author}`;
+    } catch (error) {
+      // Local quotes fallback if fetch fails
+      const fallbackQuotes = [
+        { text: "Believe in yourself!", author: "Unknown" },
+        { text: "You are stronger than you think.", author: "Anonymous" },
+        { text: "Push yourself, because no one else is going to do it for you.", author: "Unknown" },
+        { text: "Don't stop when you're tired. Stop when you're done.", author: "Marilyn Monroe" },
+        { text: "Success doesn’t just find you. You have to go out and get it.", author: "Unknown" }
+      ];
+
+      const randomIndex = Math.floor(Math.random() * fallbackQuotes.length);
+      const quote = fallbackQuotes[randomIndex];
+
+      document.getElementById("quote").textContent = `"${quote.text}"`;
+      document.getElementById("author").textContent = `— ${quote.author}`;
+    }
+  }
+
+  window.onload = fetchQuote;
+</script>
+</script>
+
+
+
+</body>
+</html>

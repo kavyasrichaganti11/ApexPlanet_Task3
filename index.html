@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LearnSphere Quiz</title>
+  <style>
+     body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #1a1a2e;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      flex-direction: column;
+    }
+ a{
+        color: #fff;
+    }
+    a:hover {
+    color: #ff9900; /* Color when hovered */
+  }
+    .carousel-container {
+      position: relative;
+      width: 90%;
+      max-width: 700px;
+      overflow: hidden;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(255,255,255,0.2);
+    }
+
+    .carousel-slide {
+      display: flex;
+      transition: transform 0.5s ease-in-out;
+    }
+
+    .carousel-slide a {
+      flex-shrink: 0;
+      width: 100%;
+    }
+
+    .carousel-slide img {
+      width: 100%;
+      display: block;
+      border-radius: 10px;
+    }
+
+    .carousel-buttons {
+      position: absolute;
+      top: 50%;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      transform: translateY(-50%);
+      padding: 0 10px;
+    }
+
+    .carousel-buttons button {
+      background: rgba(0,0,0,0.5);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      border-radius: 50%;
+    }
+
+    .carousel-dots {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .dot {
+      height: 12px;
+      width: 12px;
+      margin: 0 5px;
+      background-color: #ccc;
+      border-radius: 50%;
+      display: inline-block;
+      cursor: pointer;
+    }
+
+    .active {
+      background-color: #1a75ff;
+    }
+
+    @media (max-width: 600px) {
+      .carousel-buttons button {
+        padding: 0.3rem 0.7rem;
+      }
+    }
+    h1 {
+      margin-bottom: 2rem;
+      text-shadow: 2px 2px #000;
+    }
+  
+  </style>
+</head>
+<body>
+  <h1>Welcome to LearnSphere Quiz</h1>
+  <a href = "API.html">Click Here for Motivation .....!!!</a>
+   <h2>🎯 Choose Your Level</h2>
+  <div class="carousel-container">
+    <div class="carousel-slide" id="carousel-slide">
+      <a href="basic.html"><img src="basic.png" alt="Basic Level Quiz"></a>
+      <a href="midlevel.html"><img src="midlevel.png" alt="Mid-Level Quiz"></a>
+      <a href="advanced.html"><img src="advanced.png" alt="Advanced Quiz"></a>
+    </div>
+
+    <div class="carousel-buttons">
+      <button onclick="prevSlide()"><</button>
+      <button onclick="nextSlide()">></button>
+    </div>
+  </div>
+
+  <div class="carousel-dots" id="carousel-dots"></div>
+
+  
+  <script>
+
+  
+
+
+
+    const slide = document.getElementById('carousel-slide');
+    const dotsContainer = document.getElementById('carousel-dots');
+    const totalSlides = slide.children.length;
+    let currentIndex = 0;
+    let interval;
+
+    function createDots() {
+      for (let i = 0; i < totalSlides; i++) {
+        const dot = document.createElement("span");
+        dot.classList.add("dot");
+        dot.onclick = () => goToSlide(i);
+        dotsContainer.appendChild(dot);
+      }
+      updateDots();
+    }
+
+    function updateDots() {
+      const dots = document.querySelectorAll('.dot');
+      dots.forEach(dot => dot.classList.remove("active"));
+      if (dots[currentIndex]) dots[currentIndex].classList.add("active");
+    }
+
+    function showSlide(index) {
+      slide.style.transform = `translateX(-${index * 100}%)`;
+      currentIndex = index;
+      updateDots();
+    }
+
+    function nextSlide() {
+      let next = (currentIndex + 1) % totalSlides;
+      showSlide(next);
+    }
+
+    function prevSlide() {
+      let prev = (currentIndex - 1 + totalSlides) % totalSlides;
+      showSlide(prev);
+    }
+
+    function goToSlide(i) {
+      showSlide(i);
+    }
+
+    function autoPlay() {
+      interval = setInterval(() => {
+        nextSlide();
+      }, 4000); // Change every 4 seconds
+    }
+
+    createDots();
+    showSlide(0);
+    autoPlay();
+  </script>
+</body>
+</html>
